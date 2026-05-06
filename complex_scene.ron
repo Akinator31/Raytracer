@@ -1,0 +1,134 @@
+(
+    imports: [
+        "./assets/color.ron",
+        "./assets/car.ron",
+        "./assets/house.ron",
+        "./assets/city.ron",
+        "./assets/park.ron",
+    ],
+    camera: (
+        position: (10, 6, 18),
+        rotation: (0.4, -0.3, 0),
+        resolution: (width: 1920, height: 1080),
+        fov: 1.4,
+    ),
+    ambient: 0.55,
+    components: {
+        "Park": (
+            primitives: [
+                (kind: "Fountain", transform: (translation: (0, 0, 0))),
+                (kind: "Tree", transform: (translation: (-4, 0, 3))),
+                (kind: "Tree", transform: (translation: (4, 0, 3))),
+                (kind: "Pine", transform: (translation: (-3.5, 0, -3))),
+                (kind: "Pine", transform: (translation: (3.5, 0, -3))),
+                (kind: "Bench", transform: (translation: (-2.5, 0, 1.8))),
+                (kind: "Bench", transform: (translation: (2.5, 0, 1.8))),
+                (kind: "Lamp", transform: (translation: (-5, 0, -5))),
+                (kind: "Lamp", transform: (translation: (5, 0, -5))),
+            ]
+        ),
+    },
+    primitives: [
+        (
+            kind: "plane",
+            config: (normal: (0.0, 1.0, 0.0)),
+            transform: (translation: (0.0, -1.0, 0.0)),
+            material: "@GREEN",
+        ),
+        (
+            kind: "House",
+            transform: (translation: (-10, 0, 0)),
+        ),
+        (
+            kind: "House",
+            transform: (translation: (5, 0, 0)),
+        ),
+        (
+            kind: "Road",
+            transform: (translation: (0, -1.19, 4)),
+        ),
+        (
+            kind: "Lamp",
+            transform: (translation: (0, 0, 5.75)),
+        ),
+        (
+            kind: "Lamp",
+            transform: (translation: (-8, 0, 5.75)),
+        ),
+        (
+            kind: "Lamp",
+            transform: (translation: (8, 0, 5.75)),
+        ),
+        (
+            kind: "Car",
+            props: (color: "@YELLOW"),
+            transform: (translation: (-10, -0.6, 3)),
+        ),
+        (
+            kind: "Car",
+            props: (color: "@CYAN"),
+            transform: (translation: (5, -0.6, 3)),
+        ),
+        (
+            kind: "Car",
+            props: (color: "@MAGENTA"),
+            transform: (translation: (-3, -0.6, 8)),
+        ),
+        (
+            kind: "Car",
+            props: (color: "@RED"),
+            transform: (translation: (12, -0.6, -2)),
+        ),
+        (
+            kind: "Park",
+            transform: (translation: (-18, 0, -3)),
+        ),
+        (
+            kind: "BallPyramid",
+            transform: (translation: (3, 0, 11)),
+        ),
+        (
+            kind: "sphere",
+            config: (radius: 1.0),
+            transform: (translation: (-15, 0, 7)),
+            material: "@MAGENTA",
+        ),
+    ],
+    lights: [
+        (
+            kind: "directional_light",
+            config: (
+                direction: (x: -0.4, y: -1.0, z: -0.5),
+                intensity: (1.0, 0.95, 0.9),
+            ),
+        ),
+        (
+            kind: "point_light",
+            config: (
+                position: (x: 0, y: 5, z: 5.75),
+                intensity: (0.9, 0.9, 0.8),
+            ),
+        ),
+        (
+            kind: "point_light",
+            config: (
+                position: (x: -18, y: 5, z: -8),
+                intensity: (0.8, 0.9, 1.0),
+            ),
+        ),
+        (
+            kind: "point_light",
+            config: (
+                position: (x: -18, y: 3, z: -3),
+                intensity: (0.9, 0.75, 0.55),
+            ),
+        ),
+        (
+            kind: "point_light",
+            config: (
+                position: (x: 10, y: 8, z: 14),
+                intensity: (0.6, 0.6, 0.6),
+            ),
+        ),
+    ],
+)
