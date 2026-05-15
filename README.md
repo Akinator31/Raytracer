@@ -1,73 +1,121 @@
 # Raytracer
 
-A modular and extensible Raytracer written in Rust. This project features dynamic plugin loading for primitives, materials, and lights, enabling easy extension without recompiling the core engine. It supports outputting renders to `.ppm` image files or displaying them directly in an SFML window.
+A modular and extensible raytracer written in Rust. The project uses dynamic plugins for primitives, materials, and lights so new rendering elements can be added without rebuilding the core crate.
 
 ## Features
 
-- **Modular Architecture**: Uses a workspace with dynamic libraries (`.so` / `.dylib`) for primitives, lights, and materials.
-- **Primitives**: Sphere, Plane, Cylinder, Cone, Cube, and OBJ file support.
+- **Modular Architecture**: Cargo workspace with dynamic libraries (`.so` / `.dylib` / `.dll`) loaded at runtime.
+- **Primitives**: Sphere, Plane, Cylinder, Cone, Cube, OBJ, Tetrahedron, and Torus.
 - **Lights**: Point Light, Directional Light.
 - **Materials**: Flat Color.
-- **Configuration Engine**: Uses RON (Rusty Object Notation) parsing for scene descriptions.
-- **SFML Integration**: Option to render directly into a window.
-- **Hot-reloading/Watch mode**: Integrated filesystem watcher to re-render the image automatically when the scene file is modified.
+- **Configuration Engine**: RON scene loading with pre-processing (`imports`, reusable `components`, and property references).
+- **SFML Integration**: Optional preview window on supported builds/platforms.
+- **Hot-reload helper**: `make watch` reruns rendering after scene changes.
 
 ## Prerequisites
 
 - [Rust](https://www.rust-lang.org/tools/install) (Cargo)
-- [SFML](https://www.sfml-dev.org/) (for the graphical window support)
 - GNU Make
+- [SFML](https://www.sfml-dev.org/) (required only for SFML preview builds)
 
 ## Building the Project
 
-Use the provided `Makefile` to compile the core raytracer and all its plugins in release mode:
+Build the workspace and copy plugin dynamic libraries into `plugins/`:
 
 ```bash
 make all
 ```
-This command builds the project and copies the compiled dynamic libraries to the `plugins/` folder to ensure the engine can find them at runtime.
+
+The runtime loader resolves plugins from `plugins/`, so this copy step is required.
 
 ## Running the Raytracer
 
-You can run the raytracer to render the default configuration (`config.ron`) and display it using the SFML window:
+Run with the default scene:
 
 ```bash
 make run
 ```
-Which is roughly equivalent to running:
+
+On macOS, this renders to `image.ppm` without SFML preview.
+
+On non-macOS, `make run` enables `sfml-preview` and passes `--sfml`.
+
+You can also run directly with Cargo:
+
 ```bash
-cargo run --release -- ./config.ron --sfml
+cargo run --release -p raytracer -- ./config.ron
 ```
 
-### Watch Mode
+For SFML preview (non-macOS):
+
+```bash
+cargo run --release -p raytracer --features sfml-preview -- ./config.ron --sfml
+```
+
+### Development checks
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --verbose
+```
+
+Run tests for one crate:
+
+```bash
+cargo test -p raytracer
+```
+
+Run a single test by name filter:
+
+```bash
+cargo test -p raytracer <test_name> -- --exact
+```
+
+### Watch mode
 
 If you are editing a scene and want to see the changes update automatically, you can use the watch mode:
 
 ```bash
 make watch
 ```
-*Note: This utilizes `inotifywait` (Linux) to watch for file changes.*
+This helper script uses `inotifywait` and is intended for Linux-like environments.
 
 ## Scene Configuration
 
-Scenes are described using RON (Rusty Object Notation). Here are a few examples included in the workspace:
+Scenes are written in RON. The pipeline supports:
+- direct primitive/light/material definitions;
+- reusable component declarations via `components`;
+- external component imports via `imports`;
+- property substitution via `@references`.
+
+Examples included in the repository:
 - `config.ron`
-- `car.ron`, `city.ron`, `house.ron` (located in `./assets/` or repository root)
+- assets in `assets/` (e.g., `car.ron`, `city.ron`, `house.ron`, `color.ron`)
+
+## Architecture Overview
+
+1. `src/raytracer/main.rs` reads a scene file, preprocesses it, and deserializes into scene descriptors.
+2. `PluginLoader` dynamically resolves primitive/material/light `create` symbols from the `plugins/` directory.
+3. The scene is converted into runtime objects (`Primitive`, `Material`, `Light`) and fed to `Renderer`.
+4. `Renderer` builds a BVH, performs multithreaded tile-based ray casting, computes shading/shadows, and writes `image.ppm` (or displays via SFML preview when enabled).
 
 ## Documentation
 
-This project uses [Doxygen](https://www.doxygen.nl/) for generating code documentation. 
+This project uses [Doxygen](https://www.doxygen.nl/) for generated documentation.
 
-To generate the documentation, run:
+Generate docs with:
 ```bash
 doxygen Doxyfile
 ```
 
-## Cleaning up
+## Cleaning
 
-To remove the compiled target directories:
 ```bash
 make clean
-# or to fully wipe out the target folder:
+```
+
+To fully remove `target/`:
+```bash
 make fclean
 ```
