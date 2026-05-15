@@ -1,31 +1,61 @@
 # Project Architecture
 
-This documentation details the architecture of the Raytracer project.
+This document summarizes how the Raytracer workspace is structured and how data flows from scene files to final pixels.
 
-## Core Concepts
+## Workspace layout
 
-The Raytracer is split into a main binary and several dynamic libraries (plugins). The main logic loop resides in the `raytracer` package, handling:
-- **Scene Parsing**: Reading `.ron` configurations.
-- **Camera Setup**: Mathematical positioning, FOV, and rays generation.
-- **Rendering Loop**: Intersecting rays with primitives, calculating lights and color from materials.
-- **Output Management**: Pushing pixels to a `.ppm` file or rendering real-time into an SFML window.
+- `src/raytracer`: core crate (library + binary entrypoint)
+- `src/primitives/*`: primitive plugins (`cdylib`)
+- `src/materials/*`: material plugins (`cdylib`)
+- `src/lights/*`: light plugins (`cdylib`)
 
-## Plugin System
+The binary crate orchestrates scene loading, plugin instantiation, and rendering. Plugin crates implement extension points and are loaded dynamically from `plugins/`.
 
-The raytracer utilizes dynamic loading to extend its functionalities. This ensures that the user can implement a new primitive or a new material without recompiling the main engine. Every plugin acts as a `.so` or `.dylib` library and implements standard traits expected by the core system.
+## End-to-end runtime flow
 
-### Types of Plugins:
+1. **CLI + scene input** (`src/raytracer/main.rs`)
+   - Reads scene path from arguments.
+   - Loads file content and runs preprocessor (`scene/preprocessor`).
+2. **Preprocessing**
+   - Expands `imports` and `components`.
+   - Resolves `props` and `@references`.
+   - Composes nested transforms into concrete per-primitive transforms.
+3. **Deserialization**
+   - Converts preprocessed RON into `SceneDesc` (`primitives`, `lights`, `camera`, `ambient`).
+4. **Dynamic plugin creation**
+   - `PluginLoader` loads libraries from `plugins/` and calls exported `create` symbols.
+   - Produces runtime trait objects:
+     - `Primitive = Box<dyn CanHit + Send + Sync>`
+     - `Material = Box<dyn CanShade + Send + Sync>`
+     - `Light = Box<dyn CanLight + Send + Sync>`
+5. **Scene assembly**
+   - Runtime scene stores objects as `(Primitive, Material, Transform)` tuples.
+6. **Rendering**
+   - `Renderer::from_scene` builds a BVH over object AABBs.
+   - `Renderer::render` casts rays tile-by-tile in parallel, performs shadow checks, shades hits, and writes RGB output.
+7. **Output**
+   - Writes `image.ppm`.
+   - Optionally starts SFML preview when built/used with preview support.
 
-1. **Primitives (`src/primitives/`)**: 
-   - Define objects that can be mathematically intersected by a Ray.
-   - Example: Sphere, Plane, Cone, Cylinder, Cube, OBJ.
-2. **Lights (`src/lights/`)**: 
-   - Define a light source, providing intensity, direction, or position.
-   - Example: Point Light, Directional Light.
-3. **Materials (`src/materials/`)**: 
-   - Define the surface properties and how it reflects light/color.
-   - Example: Flat Color.
+## Plugin contract and naming
 
-## Math and Rendering
+Each plugin must export:
 
-All linear algebra is contained inside the internal math module. The core loop generates rays starting from the camera origin, parsing through each virtual pixel in the viewport. If an intersection with a Primitive is found, the material parameters and interactions with Light instances dictate the final pixel color.
+```rust
+#[unsafe(no_mangle)]
+pub fn create(cfg: &ron::Value) -> ...
+```
+
+`PluginLoader` uses strict file naming:
+
+- primitive: `libraytracer_<kind>.<ext>`
+- material: `libraytracer_material_<kind>.<ext>`
+- light: `libraytracer_light_<kind>.<ext>`
+
+where `<ext>` is platform-dependent (`so`, `dylib`, `dll`).
+
+## Rendering notes
+
+- BVH traversal is used for both closest-hit and shadow occlusion queries.
+- Rendering is tile-based (`16x16`) and distributed across available CPU threads.
+- Ambient intensity is applied as a post-shade scalar at the renderer level.
