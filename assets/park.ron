@@ -1,0 +1,143 @@
+(
+    imports: ["./color.ron"],
+    components: {
+        "Tree": (
+            primitives: [
+                (
+                    kind: "cylinder",
+                    config: (radius: 0.3, height: 2.0),
+                    transform: (translation: (0, 0, 0)),
+                    material: "@BROWN",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 1.2),
+                    transform: (translation: (0, 2.0, 0)),
+                    material: "@GREEN",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.8),
+                    transform: (translation: (0.7, 2.6, 0.4)),
+                    material: "@GREEN",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.7),
+                    transform: (translation: (-0.6, 2.4, -0.4)),
+                    material: "@GREEN",
+                ),
+            ]
+        ),
+        "Pine": (
+            primitives: [
+                // (
+                //     kind: "cone",
+                //     config: (angle: 14),
+                //     transform: (translation: (0, 4.0, 0)),
+                //     material: "@GREEN",
+                // ),
+            ]
+        ),
+        "Bench": (
+            primitives: [
+                (
+                    kind: "cube",
+                    config: (half_size: (1.5, 0.08, 0.4)),
+                    transform: (translation: (0, 0.4, 0)),
+                    material: "@BROWN",
+                ),
+                (
+                    kind: "cube",
+                    config: (half_size: (0.1, 0.4, 0.4)),
+                    transform: (translation: (-1.3, -0.05, 0)),
+                    material: "@GRAY",
+                ),
+                (
+                    kind: "cube",
+                    config: (half_size: (0.1, 0.4, 0.4)),
+                    transform: (translation: (1.3, -0.05, 0)),
+                    material: "@GRAY",
+                ),
+                (
+                    kind: "cube",
+                    config: (half_size: (1.5, 0.4, 0.05)),
+                    transform: (translation: (0, 0.85, -0.35)),
+                    material: "@BROWN",
+                ),
+            ]
+        ),
+        "Fountain": (
+            primitives: [
+                (
+                    kind: "cylinder",
+                    config: (radius: 1.6, height: 0.5),
+                    transform: (translation: (0, -0.55, 0)),
+                    material: "@GRAY",
+                ),
+                (
+                    kind: "cylinder",
+                    config: (radius: 1.4, height: 0.4),
+                    transform: (translation: (0, -0.4, 0)),
+                    material: "@CYAN",
+                ),
+                (
+                    kind: "cylinder",
+                    config: (radius: 0.2, height: 1.2),
+                    transform: (translation: (0, 0.4, 0)),
+                    material: "@WHITE",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.45),
+                    transform: (translation: (0, 1.2, 0)),
+                    material: "@CYAN",
+                ),
+            ]
+        ),
+        "TrafficCone": (
+            primitives: [
+                (
+                    kind: "cone",
+                    config: (angle: 18),
+                    transform: (translation: (0, 0.5, 0)),
+                    material: "@RED",
+                ),
+                (
+                    kind: "cube",
+                    config: (half_size: (0.4, 0.05, 0.4)),
+                    transform: (translation: (0, -0.95, 0)),
+                    material: "@BLACK",
+                ),
+            ]
+        ),
+        "BallPyramid": (
+            primitives: [
+                (
+                    kind: "sphere",
+                    config: (radius: 0.5),
+                    transform: (translation: (-0.55, -0.5, -0.3)),
+                    material: "@RED",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.5),
+                    transform: (translation: (0.55, -0.5, -0.3)),
+                    material: "@BLUE",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.5),
+                    transform: (translation: (0, -0.5, 0.65)),
+                    material: "@YELLOW",
+                ),
+                (
+                    kind: "sphere",
+                    config: (radius: 0.5),
+                    transform: (translation: (0, 0.3, 0)),
+                    material: "@MAGENTA",
+                ),
+            ]
+        ),
+    }
+)
